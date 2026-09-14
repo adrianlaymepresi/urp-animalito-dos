@@ -1135,6 +1135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Reticle: {fileID: 0}
   Speed: 1.2
+  VelocidadDash: 2
 --- !u!1 &8279029092419289887
 GameObject:
   m_ObjectHideFlags: 0

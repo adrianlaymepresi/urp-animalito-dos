@@ -105,4 +105,19 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         AudioListener.pause = false;
     }
+
+    public int ObtenerScore()
+    {
+        return score;
+    }
+
+    public void ReiniciarScore()
+    {
+        score = 0;
+
+        if (TextoScore != null)
+        {
+            TextoScore.text = "SCORE: 0";
+        }
+    }
 }

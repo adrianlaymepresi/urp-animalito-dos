@@ -14,12 +14,19 @@ public class ConfiguracionPersonaje
 public class AnimalManager : MonoBehaviour
 {
     public ReticleBehaviour Reticle;
+
     public SuperficieManager SuperficieManager;
+
     public CarneGenerador CarneGenerador;
 
     public ConfiguracionPersonaje[] Personajes;
 
     public AudioClip SonidoComiendo;
+
+    [Header("Efectos al comer")]
+    public GameObject EfectoComerPrefab;
+
+    public GameObject TextoPuntoPrefab;
 
     public AnimalBehaviour Animal;
 
@@ -27,18 +34,29 @@ public class AnimalManager : MonoBehaviour
 
     private void Start()
     {
-        int indice = DatosJuego.ObtenerPersonajeSeleccionado();
-
-        if (indice < 0 || indice >= Personajes.Length)
+        if (Personajes == null ||
+            Personajes.Length == 0)
         {
-            indice = DatosJuego.PersonajePorDefecto;
+            return;
         }
 
-        configuracionActual = Personajes[indice];
+        int indice =
+            DatosJuego.ObtenerPersonajeSeleccionado();
+
+        if (indice < 0 ||
+            indice >= Personajes.Length)
+        {
+            indice =
+                DatosJuego.PersonajePorDefecto;
+        }
+
+        configuracionActual =
+            Personajes[indice];
 
         if (CarneGenerador != null)
         {
-            CarneGenerador.CarnePrefab = configuracionActual.AlimentoPrefab;
+            CarneGenerador.CarnePrefab =
+                configuracionActual.AlimentoPrefab;
         }
     }
 
@@ -50,17 +68,25 @@ public class AnimalManager : MonoBehaviour
             return;
         }
 
+        if (configuracionActual == null)
+        {
+            return;
+        }
+
         if (Animal == null &&
             WasTapped() &&
             Reticle.CurrentPlane != null)
         {
-            var objetoAnimal =
-                Instantiate(configuracionActual.AnimalPrefab);
+            GameObject objetoAnimal =
+                Instantiate(
+                    configuracionActual.AnimalPrefab
+                );
 
             Animal =
                 objetoAnimal.GetComponent<AnimalBehaviour>();
 
-            Animal.Reticle = Reticle;
+            Animal.Reticle =
+                Reticle;
 
             Animal.transform.position =
                 Reticle.transform.position;
@@ -70,10 +96,49 @@ public class AnimalManager : MonoBehaviour
                 SonidoComiendo
             );
 
+            Animal.ConfigurarEfectos(
+                EfectoComerPrefab,
+                TextoPuntoPrefab
+            );
+
             SuperficieManager.LockPlane(
                 Reticle.CurrentPlane
             );
         }
+    }
+
+    public void EjecutarDash()
+    {
+        if (RetoManager.Instancia != null &&
+            RetoManager.Instancia.RetoActivo)
+        {
+            return;
+        }
+
+        if (GameManager.Instancia != null &&
+            GameManager.Instancia.EstaPausado)
+        {
+            return;
+        }
+
+        if (Animal == null)
+        {
+            return;
+        }
+
+        if (CarneGenerador == null)
+        {
+            return;
+        }
+
+        if (CarneGenerador.Carne == null)
+        {
+            return;
+        }
+
+        Animal.IniciarDash(
+            CarneGenerador.Carne.transform
+        );
     }
 
     private bool WasTapped()
@@ -94,7 +159,8 @@ public class AnimalManager : MonoBehaviour
             return false;
         }
 
-        var touch = Input.GetTouch(0);
+        Touch touch =
+            Input.GetTouch(0);
 
         if (touch.phase != TouchPhase.Began)
         {
